@@ -3,14 +3,14 @@ require 'sinatra'
 require 'solareventcalculator'
 require 'json'
 
-get '/sunrise/today/:lat/:lng/:tz1/:tz2' do
+get '/today/:lat/:lng/:tz1/:tz2' do
   timezone = params[:tz1] + '/' + params[:tz2]
   events = events_map(Date.today, BigDecimal.new(params[:lat]), BigDecimal.new(params[:lng]), timezone)
 
   "#{JSON.generate(Date.today.to_s => events)}"
 end
 
-get '/sunrise/year/:lat/:lng/:tz1/:tz2' do
+get '/year/:lat/:lng/:tz1/:tz2' do
   timezone = params[:tz1] + '/' + params[:tz2]
 
   dateEvents = Array.new
@@ -22,7 +22,7 @@ get '/sunrise/year/:lat/:lng/:tz1/:tz2' do
   "#{JSON.pretty_generate(dateEvents)}"
 end
 
-get '/sunrise/:date/:lat/:lng/:tz1/:tz2' do
+get '/:date/:lat/:lng/:tz1/:tz2' do
   begin
     date = Date.strptime(params[:date], '%F')
   rescue ArgumentError
@@ -39,12 +39,13 @@ def events_map(date, lat, lng, timezone)
 
   events = {"astronomical_sunrise" => calc.compute_astronomical_sunrise(timezone).strftime('%H:%M:%S %z')}
   events["nautical_sunrise"] = calc.compute_nautical_sunrise(timezone).strftime('%H:%M:%S %z')
-  events["official_sunrise"] = calc.compute_official_sunrise(timezone).strftime('%H:%M:%S %z')
   events["civil_sunrise"] = calc.compute_civil_sunrise(timezone).strftime('%H:%M:%S %z')
+  events["official_sunrise"] = calc.compute_official_sunrise(timezone).strftime('%H:%M:%S %z') 
 
-  events["astronomical_sunset"] = calc.compute_astronomical_sunset(timezone).strftime('%H:%M:%S %z')
-  events["nautical_sunset"] = calc.compute_nautical_sunset(timezone).strftime('%H:%M:%S %z')
-  events["official_sunset"] = calc.compute_official_sunset(timezone).strftime('%H:%M:%S %z')
+  events["official_sunset"] = calc.compute_official_sunset(timezone).strftime('%H:%M:%S %z') 
   events["civil_sunset"] = calc.compute_civil_sunset(timezone).strftime('%H:%M:%S %z')
+  events["nautical_sunset"] = calc.compute_nautical_sunset(timezone).strftime('%H:%M:%S %z') 
+  events["astronomical_sunset"] = calc.compute_astronomical_sunset(timezone).strftime('%H:%M:%S %z')
+  
   return events
 end
